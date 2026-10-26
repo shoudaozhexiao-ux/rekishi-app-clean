@@ -1,0 +1,113 @@
+/* 和紙・墨・朱印。本文は読みやすい字体、見出しは明朝。 */
+:root {
+  --paper: #f7f0e2;
+  --paper-light: #fffcf5;
+  --ink: #30291f;
+  --muted: #665b4d;
+  --rule: #d4c4a7;
+  --seal: #8c382c;
+}
+[data-testid="stAppViewContainer"] {
+  background-color: var(--paper);
+  background-image: radial-gradient(ellipse at top left, #fffaf0 0%, transparent 70%);
+  color: var(--ink);
+}
+[data-testid="stHeader"] { background: transparent; }
+[data-testid="stMainBlockContainer"] {
+  max-width: 1240px;
+  padding: 2.5rem 2.8rem 4rem;
+}
+[data-testid="stMarkdownContainer"], [data-testid="stWidgetLabel"] {
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  line-height: 1.85;
+  font-size: 1rem;
+}
+[data-testid="stMarkdownContainer"] h1,
+[data-testid="stMarkdownContainer"] h2,
+[data-testid="stMarkdownContainer"] h3 {
+  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+  color: var(--ink);
+  line-height: 1.5;
+  letter-spacing: .035em;
+}
+[data-testid="stMarkdownContainer"] h2 {
+  border-bottom: 1px solid var(--rule);
+  border-left: 4px solid var(--seal);
+  padding: .35rem 0 .6rem 1rem;
+  margin-top: 1.6rem;
+  font-size: 1.5rem;
+}
+[data-testid="stMarkdownContainer"] h3 { font-size: 1.2rem; }
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {
+  color: var(--muted);
+  font-size: .9rem;
+  line-height: 1.7;
+}
+[data-testid="stSidebar"] { background: #ebe0ca; border-right: 1px solid var(--rule); }
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1 { font-size: 1.6rem; }
+[data-testid="stSidebar"] [data-testid="stWidgetLabel"] { font-weight: 600; }
+[data-testid="stButton"] button, [data-testid="stLinkButton"] a {
+  color: var(--seal);
+  background: var(--paper-light);
+  border: 1px solid #aa8b65;
+  border-radius: 5px;
+  min-height: 2.6rem;
+}
+[data-testid="stButton"] button:hover, [data-testid="stLinkButton"] a:hover {
+  background: #f0e4ce;
+  border-color: var(--seal);
+}
+[data-testid="stTextInput"] input { background: var(--paper-light); color: var(--ink); }
+[data-testid="stExpander"] {
+  background: var(--paper-light);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+}
+[data-testid="stAlert"] {
+  background: var(--paper-light);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-left: 4px solid #a48042;
+  border-radius: 5px;
+}
+.manuscript-cover {
+  padding: 2rem 2.2rem;
+  border: 1px solid var(--rule);
+  border-top: 4px double #967a52;
+  border-bottom: 4px double #967a52;
+  background: var(--paper-light);
+  margin: .4rem 0 1.2rem;
+}
+.manuscript-cover .kicker { color: var(--seal); letter-spacing: .18em; font-size: .85rem; font-weight: 700; }
+.manuscript-cover h1 { font-size: clamp(1.9rem, 4vw, 2.7rem); padding: .3rem 0 .5rem; margin: 0; }
+.manuscript-cover p { color: var(--muted); margin: .3rem 0; }
+.year-stamp { display: inline-block; color: var(--seal); border: 1px solid var(--seal); padding: .2rem .65rem; margin-top: .65rem; }
+.chronicle-table { width: 100%; border-collapse: collapse; table-layout: fixed; background: var(--paper-light); font-size: 1rem; line-height: 1.85; }
+.chronicle-table th { background: #eaddc4; font-family: "Hiragino Mincho ProN", "Yu Mincho", serif; color: var(--ink); padding: .9rem 1rem; text-align: left; font-size: 1.1rem; }
+.chronicle-table th:nth-child(1), .chronicle-table th:nth-child(2) { width: 38%; }
+.chronicle-table th:nth-child(3) { width: 24%; }
+.chronicle-table td { vertical-align: top; padding: 1rem; border-bottom: 1px solid var(--rule); overflow-wrap: anywhere; white-space: normal; color: var(--ink); }
+.chronicle-table tr:nth-child(even) td { background: #f5eddd; }
+.theme-label { display: inline-block; color: #743e2f; background: #f0dfce; padding: .15rem .45rem; margin: 0 .3rem .35rem 0; border-radius: 3px; font-size: .85rem; }
+.shared-words { display: block; color: var(--muted); font-size: .85rem; margin-top: .3rem; }
+.forecast-sheet { background: var(--paper-light); border: 1px solid var(--rule); border-top: 3px solid #a17b45; padding: 1.3rem 1.4rem; margin: .7rem 0 1.2rem; box-shadow: 0 2px 5px #49361e08; }
+.forecast-sheet h3 { margin: 0 0 .65rem; }
+.forecast-sheet .prediction { font-size: 1.05rem; line-height: 1.9; margin: 0 0 1rem; }
+.forecast-sheet details { border-top: 1px solid var(--rule); padding-top: .7rem; color: var(--muted); font-size: .92rem; }
+.forecast-sheet summary { color: #75462f; cursor: pointer; font-weight: 600; }
+.forecast-sheet summary:focus-visible { outline: 2px solid var(--seal); outline-offset: 4px; }
+.forecast-sheet ul { padding-left: 1.2rem; }
+.forecast-sheet li { margin: .45rem 0; }
+@media (max-width: 700px) {
+  [data-testid="stMainBlockContainer"] { padding: 1.5rem 1rem 3rem; }
+  .manuscript-cover { padding: 1.3rem 1.1rem; }
+  [data-testid="stMarkdownContainer"] h2 { font-size: 1.3rem; }
+  .chronicle-table, .chronicle-table tbody, .chronicle-table tr, .chronicle-table td { display: block; width: 100%; box-sizing: border-box; }
+  .chronicle-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .chronicle-table tr { border: 1px solid var(--rule); margin-bottom: 1rem; }
+  .chronicle-table td { padding: .8rem 1rem; border-bottom: none; }
+  .chronicle-table td + td { border-top: 1px dashed var(--rule); }
+  .chronicle-table td::before { content: attr(data-label); display: block; font-size: .85rem; color: var(--seal); font-weight: 700; margin-bottom: .3rem; }
+  .forecast-sheet { padding: 1.1rem; }
+}
