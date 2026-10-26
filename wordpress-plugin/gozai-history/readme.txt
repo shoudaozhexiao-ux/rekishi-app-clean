@@ -1,7 +1,7 @@
 === ござい歴史アプリ ===
 Requires at least: 6.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 
 == 機能 ==
@@ -32,4 +32,4 @@ WordPress REST APIの /gozai-history/v1/history と /gozai-history/v1/news は�
 Wikipedia由来の抜粋はCC BY-SAです。予想はテーマ別ルールによる仮説で、史実の因果関係や周期性を証明しません。
 
 == 変更履歴 ==
-1.0.0: Streamlitから独立したWordPress用の初版。
+1.0.1: Streamlitから独立したWordPress用の初版。

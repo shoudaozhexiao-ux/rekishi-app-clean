@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ござい歴史アプリ
  * Description: 歴史の60年差比較・今年の予想・ニュースを記事内で表示します。ショートコード: [gozai_history_app]
- * Version: 1.0.0
+ * Version: 1.0.1
  * Requires at least: 6.0
  * Requires PHP: 7.4
  * License: GPL-2.0-or-later
@@ -10,7 +10,7 @@
 if (!defined('ABSPATH')) { exit; }
 
 final class Gozai_History_App {
-    const VERSION = '1.0.0';
+    const VERSION = '1.0.1';
     const NS = 'gozai-history/v1';
 
     public static function init() {
@@ -85,6 +85,7 @@ final class Gozai_History_App {
         $failure = get_transient($key . '_error');
         if ($failure) {
             if (is_array($stale)) { $stale['stale'] = true; return $stale; }
+            if (is_array($failure) && isset($failure['code'], $failure['message'], $failure['status'])) { return self::error($failure['code'], $failure['message'], $failure['status']); }
             return self::error('gh_retry', '外部サービスから取得できません。少し待ってから再試行してください。', 503);
         }
         if (!self::budget()) {
@@ -95,7 +96,7 @@ final class Gozai_History_App {
         try { $result = call_user_func($loader); }
         finally { delete_transient($lock); }
         if (is_wp_error($result)) {
-            set_transient($key . '_error', 1, 60);
+            set_transient($key . '_error', array('code' => $result->get_error_code(), 'message' => $result->get_error_message(), 'status' => $result->get_error_data()['status']), 60);
             if (is_array($stale)) { $stale['stale'] = true; return $stale; }
             return $result;
         }
@@ -131,6 +132,9 @@ final class Gozai_History_App {
             $raw = self::get_remote($url, 5000000);
             if (is_wp_error($raw)) { return $raw; }
             $data = json_decode($raw, true);
+            if (isset($data['error']['code']) && $data['error']['code'] === 'missingtitle') {
+                return self::error('gh_missing', 'Wikipediaに「' . $title . '」の個別記事がありません。別の年を選ぶか、比較する出来事を「世界」に切り替えてください。', 404);
+            }
             if (!isset($data['parse']['text']) || !is_string($data['parse']['text'])) { return self::error('gh_parse', $year . '年の資料を取得できません。'); }
             $events = self::parse_events($data['parse']['text']);
             if (is_wp_error($events)) { return $events; }

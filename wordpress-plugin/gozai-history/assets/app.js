@@ -21,14 +21,15 @@ function init(root){
  const refresh=root.querySelector('.gh-refresh'),newsStatus=root.querySelector('.gh-news-status'),newsResults=root.querySelector('.gh-news-results');
  function setYears(){const r=C.yearRanges(year);select.replaceChildren(...r.years.map(y=>{const o=node('option',`${y}年 ↔ ${y+60}年`);o.value=String(y);return o;}));select.value=String(r.years[r.years.length-1]);root.querySelector('.gh-year').textContent=`${year}年の巻`;}
  function message(error){if(error.name==='AbortError')return '';return error.message||'資料を取得できません。時間をおいて再試行してください。';}
- async function request(path,params,signal){
+ async function request(path,params,signal,attempt=0){
   const url=new URL(api,window.location.href);url.pathname=url.pathname.replace(/\/$/,'')+'/'+path;
   // rest_url can use ?rest_route= on sites without pretty permalinks.
   if(url.searchParams.has('rest_route')){const route=url.searchParams.get('rest_route').replace(/\/$/,'');url.pathname=new URL(api,window.location.href).pathname;url.searchParams.set('rest_route',route+'/'+path);}
   Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,String(v)));
-  let response;
-  try{response=await fetch(url.href,{signal,credentials:'omit',headers:{Accept:'application/json'}});}catch(e){if(e.name==='AbortError')throw e;throw new Error('通信できませんでした。接続を確認して再試行してください。');}
+  let response,timer;const localAbort=new AbortController();const cancel=()=>localAbort.abort();signal.addEventListener('abort',cancel,{once:true});
+  try{response=await Promise.race([fetch(url.href,{signal:localAbort.signal,credentials:'omit',headers:{Accept:'application/json'}}),new Promise((_,reject)=>{timer=setTimeout(()=>{reject(new Error('取得に時間がかかっています。少し待ってから再読み込みしてください。'));localAbort.abort();},25000);})]);}catch(e){if(e.name==='AbortError')throw e;throw new Error(e.message||'通信できませんでした。接続を確認して再試行してください。');}finally{clearTimeout(timer);signal.removeEventListener('abort',cancel);}
   let data;try{data=await response.json();}catch(_){throw new Error('サーバーから資料を読み取れませんでした。');}
+  if(!response.ok&&data.code==='gh_busy'&&attempt<3){await new Promise((resolve,reject)=>{const stop=()=>{clearTimeout(t);reject(new DOMException('Aborted','AbortError'));};const t=setTimeout(()=>{signal.removeEventListener('abort',stop);resolve();},1500*Math.pow(2,attempt));signal.addEventListener('abort',stop,{once:true});if(signal.aborted)stop();});return request(path,params,signal,attempt+1);}
   if(!response.ok)throw new Error(typeof data.message==='string'?data.message:'資料を取得できませんでした。');
   if(path==='history'&&(!Array.isArray(data.events)||!data.events.every(x=>typeof x==='string')||!Number.isInteger(data.year)))throw new Error('歴史資料の形式を確認できません。');
   return data;
@@ -74,6 +75,7 @@ function init(root){
   const ticket=++historyTicket;if(historyAbort)historyAbort.abort();historyAbort=new AbortController();const signal=historyAbort.signal;
   status.textContent='歴史資料を取得しています…';comparison.setAttribute('aria-busy','true');forecast.setAttribute('aria-busy','true');refresh.disabled=true;
   const old=Number(select.value),region=scope.value;
+  comparison.replaceChildren(node('p',`${region==='japan'?'日本':'世界'}：${old}年 ↔ ${old+60}年の資料を取得しています…`));forecast.replaceChildren(node('p',`${year}年の予想の根拠資料を取得しています…`));
   const inputs=[['past',old,region],['later',old+60,region],['japan',year-60,'japan'],['world',year-60,'world']];
   const results={},failures={};
   await Promise.all(inputs.map(async([key,y,s])=>{try{const data=await request('history',{year:y,scope:s},signal);if(data.year!==y||data.scope!==s)throw new Error('指定した年・地域と資料が一致しません。');results[key]=data;}catch(e){failures[key]=message(e);}}));

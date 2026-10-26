@@ -1,7 +1,7 @@
 <?php
 // Isolated tests: no WordPress installation, credentials, or outbound requests.
 define('ABSPATH', __DIR__ . '/');
-class WP_Error {public $code;public $message;public $data;function __construct($c,$m,$d=array()){$this->code=$c;$this->message=$m;$this->data=$d;}}
+class WP_Error {function get_error_code(){return $this->code;}function get_error_message(){return $this->message;}function get_error_data(){return $this->data;}public $code;public $message;public $data;function __construct($c,$m,$d=array()){$this->code=$c;$this->message=$m;$this->data=$d;}}
 function is_wp_error($v){return $v instanceof WP_Error;}
 function add_action($a,$b){} function add_shortcode($a,$b){}
 $GLOBALS['cache']=array();$GLOBALS['calls']=0;$GLOBALS['mode']='ok';$GLOBALS['enqueues']=array();
@@ -52,8 +52,8 @@ check($r['title']==='1966年の日本' && $r['revision_url']==='https://ja.wikip
 Gozai_History_App::history(array('year'=>1966,'scope'=>'japan'));check($GLOBALS['calls']===1,'fresh cache avoids requests');
 unset($GLOBALS['cache']['gh_h_v1_1966_japan']);$GLOBALS['mode']='network';
 $r=Gozai_History_App::history(array('year'=>1966,'scope'=>'japan'));check($r['stale']===true,'stale explicitly marked');
-reset_state();$GLOBALS['mode']='missing';$r=Gozai_History_App::history(array('year'=>1966,'scope'=>'world'));check(is_wp_error($r),'missing year not invented');
-Gozai_History_App::history(array('year'=>1966,'scope'=>'world'));check($GLOBALS['calls']===1,'failure cached');
+reset_state();$GLOBALS['mode']='missing';$r=Gozai_History_App::history(array('year'=>1966,'scope'=>'world'));check(is_wp_error($r)&&$r->code==='gh_missing'&&$r->data['status']===404,'missing year clearly distinguished');
+Gozai_History_App::history(array('year'=>1966,'scope'=>'world'));check($GLOBALS['calls']===1,'failure cached');check($r->code==='gh_missing','original missing-article diagnosis preserved');
 reset_state();$GLOBALS['mode']='redirect';$r=Gozai_History_App::history(array('year'=>1966,'scope'=>'world'));check(is_wp_error($r),'redirect not followed');
 reset_state();$GLOBALS['cache']['gh_budget_'.gmdate('YmdHi')]=60;$r=Gozai_History_App::history(array('year'=>1966,'scope'=>'world'));check(is_wp_error($r)&&$r->data['status']===429&&$GLOBALS['calls']===0,'upstream limit');
 reset_state();$r=Gozai_History_App::news(array('q'=>'人工知能'));check(count($r['items'])===1&&$r['items'][0]['url']==='https://example.com/story','unsafe links dropped');
