@@ -1,0 +1,28 @@
+name: Test WordPress History Plugin
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'wordpress-plugin/**'
+      - '.github/workflows/test-wordpress-plugin.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check PHP environment
+        run: |
+          php --version
+          php -r 'if (!class_exists("DOMDocument") || !function_exists("simplexml_load_string")) { exit(1); }'
+      - name: PHP syntax and server behavior
+        run: |
+          php -l wordpress-plugin/gozai-history/gozai-history.php
+          php wordpress-plugin/tests/test-server.php
+      - name: Browser logic and Python parity
+        run: |
+          npm install --prefix wordpress-plugin --ignore-scripts --no-audit --no-fund
+          npm test --prefix wordpress-plugin
+      - name: Check current upstream sources
+        run: python3 wordpress-plugin/tests/check-upstream.py

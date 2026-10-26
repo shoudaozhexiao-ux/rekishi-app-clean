@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "python3 tests/generate-parity.py && node tests/test-client.cjs && node tests/test-ui.cjs"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
+}
